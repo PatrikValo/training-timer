@@ -2,7 +2,7 @@ import { FunctionComponent, Fragment } from "react";
 import { Time } from "../core";
 import { Typography, TypographyProps } from "@material-ui/core";
 
-export interface ClockProps extends TypographyProps {
+export interface ClockTypographyProps extends TypographyProps {
   time: Time;
 }
 
@@ -14,7 +14,11 @@ function twoSize(num: number): string {
   return "0" + num;
 }
 
-const Clock: FunctionComponent<ClockProps> = ({ time, children, ...other }) => {
+const ClockTypography: FunctionComponent<ClockTypographyProps> = ({
+  time,
+  children,
+  ...other
+}) => {
   const { hours: h, minutes: m, seconds: s } = time;
   const f = twoSize;
 
@@ -28,4 +32,4 @@ const Clock: FunctionComponent<ClockProps> = ({ time, children, ...other }) => {
   );
 };
 
-export default Clock;
+export default ClockTypography;

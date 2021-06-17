@@ -1,21 +1,23 @@
 import React, { FunctionComponent, Fragment, useState } from "react";
 import { Button, Grid, Typography } from "@material-ui/core";
-import Clock from "../components/clock";
 import { useTick } from "../core";
-import { msToTime } from "../utils/util";
-import AccessAlarmIcon from "@material-ui/icons/AccessAlarm";
 import notification from "../assets/notification.mp3";
 import ringbell from "../assets/ringbell.mp3";
 import { useSound } from "use-sound";
+import MainTitle from "../components/mainTitle";
+import Timer from "../components/timer";
+import OneRoundInfo from "../components/oneRoundInfo";
+import TotalTimer from "../components/totalTimer";
+import RoundsInfo from "../components/roundsInfo";
 
 export interface ClockPageProps {
   totalTime: number;
 }
 
 const ClockPage: FunctionComponent<ClockPageProps> = ({ totalTime }) => {
-  const { timeInterval, running, setRunning, start } = useTick();
+  const { tick, running, setRunning, start } = useTick();
   const [recording, setRecording] = useState<boolean>(false);
-  const [oneRoundFreeze, setOneRoundFreeze] = useState<number>(0);
+  const [oneRound, setOneRound] = useState<number>(0);
   const [round, setRound] = useState<number>(0);
   const [playNotification] = useSound(notification);
   const [playRingbell] = useSound(ringbell);
@@ -30,7 +32,7 @@ const ClockPage: FunctionComponent<ClockPageProps> = ({ totalTime }) => {
 
     if (running && recording) {
       playNotification();
-      setOneRoundFreeze(Math.floor((timeInterval - start) / 1000) * 1000);
+      setOneRound(Math.floor((tick - start) / 1000) * 1000);
       setRecording(false);
       setRound(round + 1);
     }
@@ -39,35 +41,20 @@ const ClockPage: FunctionComponent<ClockPageProps> = ({ totalTime }) => {
   const handleReset = () => {
     setRunning(false);
     setRecording(false);
-    setOneRoundFreeze(0);
+    setOneRound(0);
     setRound(0);
   };
 
-  const countDownMs = start + totalTime - timeInterval;
-  const countUpMs = recording
-    ? timeInterval - start
-    : start + round * oneRoundFreeze - timeInterval;
-  const warning = !recording && running ? countUpMs <= 5_000 : false;
-
-  const countDown =
-    countDownMs <= 0 ? msToTime(0) : msToTime(countDownMs, true);
-  const countUp = msToTime(countUpMs);
-  const rounds =
-    oneRoundFreeze === 0 ? 0 : Math.ceil(totalTime / oneRoundFreeze);
-
-  const oneRound = recording
-    ? msToTime(timeInterval - start)
-    : msToTime(oneRoundFreeze);
-
-  if (countUpMs <= 0 && running && !recording) {
+  const handleNextRound = () => {
     setRound(round + 1);
     playNotification();
-  }
+  };
 
-  if (countDownMs <= 0 && running) {
+  const handleEnd = () => {
     playRingbell();
     handleReset();
-  }
+  };
+
   return (
     <Fragment>
       <Grid
@@ -85,9 +72,7 @@ const ClockPage: FunctionComponent<ClockPageProps> = ({ totalTime }) => {
             alignItems="center"
             style={{ marginBottom: "25px" }}
           >
-            <Typography variant="h2">
-              {round % 2 === 0 ? "Pause" : "Training"}
-            </Typography>
+            <MainTitle round={round} />
           </Grid>
           <Grid
             container
@@ -96,14 +81,24 @@ const ClockPage: FunctionComponent<ClockPageProps> = ({ totalTime }) => {
             alignItems="center"
             spacing={3}
           >
-            <Clock
-              time={countUp}
-              variant="h3"
-              color={warning ? "secondary" : "textPrimary"}
+            <Timer
+              tick={tick}
+              start={start}
+              round={round}
+              oneRound={oneRound}
+              recording={recording}
+              running={running}
+              onNextRound={handleNextRound}
             />
           </Grid>
           <Grid container direction="row" justify="center" alignItems="center">
-            <Clock time={countDown} variant="h6" color="textSecondary" />
+            <TotalTimer
+              tick={tick}
+              start={start}
+              totalTime={totalTime}
+              running={running}
+              onEnd={handleEnd}
+            />
           </Grid>
           <Grid
             container
@@ -121,6 +116,7 @@ const ClockPage: FunctionComponent<ClockPageProps> = ({ totalTime }) => {
                   size="large"
                   disableElevation
                   onClick={handleStart}
+                  disabled={recording && tick - start <= 1_000}
                 >
                   {recording ? "Stop" : "Start"}
                 </Button>
@@ -151,20 +147,18 @@ const ClockPage: FunctionComponent<ClockPageProps> = ({ totalTime }) => {
           <Typography variant="body1" color="textSecondary">
             Round
           </Typography>
-          <Typography variant="h5">
-            {Math.ceil(round / 2)}/{Math.ceil(rounds / 2)}
-          </Typography>
+          <RoundsInfo round={round} oneRound={oneRound} totalTime={totalTime} />
         </Grid>
         <Grid item>
           <Typography variant="body1" color="textSecondary">
             One round
           </Typography>
-          <Clock time={oneRound} variant="h5">
-            <AccessAlarmIcon
-              color="inherit"
-              style={{ margin: "0 5px -2px 0" }}
-            />
-          </Clock>
+          <OneRoundInfo
+            tick={tick}
+            start={start}
+            recording={recording}
+            ms={oneRound}
+          />
         </Grid>
       </Grid>
     </Fragment>
