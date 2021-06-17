@@ -4,6 +4,9 @@ import Clock from "../components/clock";
 import { useTick } from "../core";
 import { msToTime } from "../utils/util";
 import AccessAlarmIcon from "@material-ui/icons/AccessAlarm";
+import notification from "../assets/notification.mp3";
+import ringbell from "../assets/ringbell.mp3";
+import { useSound } from "use-sound";
 
 export interface ClockPageProps {
   totalTime: number;
@@ -14,6 +17,8 @@ const ClockPage: FunctionComponent<ClockPageProps> = ({ totalTime }) => {
   const [recording, setRecording] = useState<boolean>(false);
   const [oneRoundFreeze, setOneRoundFreeze] = useState<number>(0);
   const [round, setRound] = useState<number>(0);
+  const [playNotification] = useSound(notification);
+  const [playRingbell] = useSound(ringbell);
 
   const handleStart = () => {
     if (!running && !recording) {
@@ -24,6 +29,7 @@ const ClockPage: FunctionComponent<ClockPageProps> = ({ totalTime }) => {
     }
 
     if (running && recording) {
+      playNotification();
       setOneRoundFreeze(Math.floor((timeInterval - start) / 1000) * 1000);
       setRecording(false);
       setRound(round + 1);
@@ -55,9 +61,11 @@ const ClockPage: FunctionComponent<ClockPageProps> = ({ totalTime }) => {
 
   if (countUpMs <= 0 && running && !recording) {
     setRound(round + 1);
+    playNotification();
   }
 
   if (countDownMs <= 0 && running) {
+    playRingbell();
     handleReset();
   }
   return (
