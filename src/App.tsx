@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import ClockPage from "./pages/clockPage";
 import {
   Container,
@@ -22,7 +22,6 @@ import {
   storeTotalTime,
 } from "./core/storage";
 import SettingDialog from "./components/settingDialog";
-import { indigo } from "@material-ui/core/colors";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -90,7 +89,7 @@ function App() {
     <MuiThemeProvider theme={muiTheme}>
       <CssBaseline />
       <div>
-        <AppBar position="static">
+        <AppBar position="static" elevation={0}>
           <Toolbar>
             <Typography variant="h6" className={classes.title}>
               Timer
