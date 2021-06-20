@@ -15,12 +15,23 @@ export interface ClockPageProps {
 }
 
 const ClockPage: FunctionComponent<ClockPageProps> = ({ totalTime }) => {
-  const { tick, running, setRunning, start } = useTick();
+  const {
+    tick,
+    running,
+    setRunning,
+    totalStart,
+    currentStart,
+    updateCurrentStart,
+  } = useTick();
   const [recording, setRecording] = useState<boolean>(false);
   const [oneRound, setOneRound] = useState<number>(0);
   const [round, setRound] = useState<number>(0);
   const [playNotification] = useSound(notification);
   const [playRingbell] = useSound(ringbell);
+  console.log(
+    totalStart + totalTime - tick,
+    currentStart + 2 * oneRound - tick
+  );
 
   const handleStart = () => {
     if (!running && !recording) {
@@ -32,7 +43,7 @@ const ClockPage: FunctionComponent<ClockPageProps> = ({ totalTime }) => {
 
     if (running && recording) {
       playNotification();
-      setOneRound(Math.floor((tick - start) / 1000) * 1000);
+      setOneRound(Math.floor((tick - currentStart) / 1000) * 1000);
       setRecording(false);
       setRound(round + 1);
     }
@@ -47,6 +58,8 @@ const ClockPage: FunctionComponent<ClockPageProps> = ({ totalTime }) => {
 
   const handleNextRound = () => {
     setRound(round + 1);
+    updateCurrentStart();
+    setRecording(true);
     playNotification();
   };
 
@@ -83,7 +96,7 @@ const ClockPage: FunctionComponent<ClockPageProps> = ({ totalTime }) => {
           >
             <Timer
               tick={tick}
-              start={start}
+              start={currentStart}
               round={round}
               oneRound={oneRound}
               recording={recording}
@@ -94,7 +107,7 @@ const ClockPage: FunctionComponent<ClockPageProps> = ({ totalTime }) => {
           <Grid container direction="row" justify="center" alignItems="center">
             <TotalTimer
               tick={tick}
-              start={start}
+              start={totalStart}
               totalTime={totalTime}
               running={running}
               onEnd={handleEnd}
@@ -116,7 +129,7 @@ const ClockPage: FunctionComponent<ClockPageProps> = ({ totalTime }) => {
                   size="large"
                   disableElevation
                   onClick={handleStart}
-                  disabled={recording && tick - start <= 1_000}
+                  disabled={recording && tick - currentStart <= 1_000}
                 >
                   {recording ? "Stop" : "Start"}
                 </Button>
@@ -147,15 +160,15 @@ const ClockPage: FunctionComponent<ClockPageProps> = ({ totalTime }) => {
           <Typography variant="body1" color="textSecondary">
             Round
           </Typography>
-          <RoundsInfo round={round} oneRound={oneRound} totalTime={totalTime} />
+          <RoundsInfo round={round} />
         </Grid>
         <Grid item>
           <Typography variant="body1" color="textSecondary">
-            One round
+            Current round
           </Typography>
           <OneRoundInfo
             tick={tick}
-            start={start}
+            start={currentStart}
             recording={recording}
             ms={oneRound}
           />

@@ -35,7 +35,8 @@ function useInterval(callback: () => void, delay: number | null) {
 
 export function useTick(ms: number = 250) {
   const [run, setRun] = useState<boolean>(false);
-  const [start, setStart] = useState<number>(0);
+  const [totalStart, setTotalStart] = useState<number>(0);
+  const [currentStart, setCurrentStart] = useState<number>(0);
   const [tick, setTick] = useState<number>(0);
 
   useInterval(
@@ -48,12 +49,18 @@ export function useTick(ms: number = 250) {
   return {
     tick,
     running: run,
-    start,
-    setRunning: (running: boolean) => {
+    totalStart,
+    currentStart,
+    setRunning: (running: boolean): void => {
       const now = Date.now();
       setRun(running);
-      setStart(now);
+      setTotalStart(now);
+      setCurrentStart(now);
       setTick(now);
+    },
+    updateCurrentStart: (): void => {
+      const diff = totalStart % 1000;
+      setCurrentStart(Math.floor(Date.now() / 1000) * 1000 + diff);
     },
   };
 }

@@ -1,22 +1,16 @@
 import React, { FunctionComponent } from "react";
 import { Typography } from "@material-ui/core";
+import HistoryIcon from "@material-ui/icons/History";
 
 export interface RoundsInfoProps {
   round: number;
-  oneRound: number;
-  totalTime: number;
 }
 
-const RoundsInfo: FunctionComponent<RoundsInfoProps> = ({
-  round,
-  oneRound,
-  totalTime,
-}) => {
-  const rounds = oneRound === 0 ? 0 : Math.ceil(totalTime / oneRound);
-
+const RoundsInfo: FunctionComponent<RoundsInfoProps> = ({ round }) => {
   return (
     <Typography variant="h5">
-      {Math.ceil(round / 2)}/{Math.ceil(rounds / 2)}
+      <HistoryIcon color="inherit" style={{ margin: "0 5px -3px 0" }} />
+      {Math.ceil(round / 2)}
     </Typography>
   );
 };

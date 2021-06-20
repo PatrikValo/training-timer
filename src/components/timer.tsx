@@ -47,7 +47,7 @@ function measureTheMs(
   if (recording) {
     return tick - start;
   }
-  return start + round * oneRound - tick;
+  return start + 2 * oneRound - tick;
 }
 
 function warnEnding(
