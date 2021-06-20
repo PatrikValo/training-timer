@@ -28,10 +28,6 @@ const ClockPage: FunctionComponent<ClockPageProps> = ({ totalTime }) => {
   const [round, setRound] = useState<number>(0);
   const [playNotification] = useSound(notification);
   const [playRingbell] = useSound(ringbell);
-  console.log(
-    totalStart + totalTime - tick,
-    currentStart + 2 * oneRound - tick
-  );
 
   const handleStart = () => {
     if (!running && !recording) {
